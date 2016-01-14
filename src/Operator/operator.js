@@ -1,17 +1,16 @@
 'use strict'
 
 let emitter = require("global-queue");
-let IrisWorkflow = require('resource-managment-framework').IrisWorkflow;
+let EmployeeApi = require("resource-managment-framework").EmployeeApi;
 
 class Operator {
 	constructor() {
 		this.emitter = emitter;
 	}
 
-	init(config) {
-		let bname = config.bucket;
-		this.iris = new IrisWorkflow();
-		this.iris.init(bname);
+	init() {
+		this.iris = new EmployeeApi();
+		iris.initContent();
 	}
 
 	//API
@@ -20,7 +19,18 @@ class Operator {
 	logout() {}
 	pause() {}
 	resume() {}
-	getInfo() {}
+
+	actionInfo({
+		user_id: emp_id
+	}) {
+		return this.iris.getEmployee({
+				keys: [emp_id]
+			})
+			// .then((employee) => {
+			//
+			// });
+	}
+
 	getWorkPlace() {}
 	defaultWorkPlace() {}
 	getAvailableWorkPlaces() {}

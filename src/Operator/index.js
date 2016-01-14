@@ -7,8 +7,8 @@ let events = {
 		resume: "operator.resume",
 		get_info: "operator.get_info",
 		get_work_place: "operator.get_work_place",
-		get_available_work_places: "operator.get_available_work_places",
-		default_work_place: "operator.default_work_place"
+		get_available_work_places: "operator.get_available_workplaces",
+		default_work_place: "operator.default_workplace"
 	}
 }
 
@@ -41,13 +41,15 @@ let tasks = [{
 	handler: 'defaultWorkPlace'
 }]
 
-
-module.exports = {
+let manifest = {
 	module: require('./operator.js'),
 	permissions: [],
+	exposed: true,
 	tasks: tasks,
 	events: {
 		group: 'operator',
 		shorthands: events.operator
 	}
 };
+
+module.exports = manifest;
