@@ -15,7 +15,9 @@ describe("Operator service", () => {
 
 	describe("Operator service", () => {
 		it("should login", (done) => {
-			return service.actionLogin()
+			return service.actionLogin({
+					user_id: "iris://data#human-1"
+				})
 				.then((res) => {
 					done();
 				})
@@ -24,7 +26,9 @@ describe("Operator service", () => {
 				});
 		})
 		it("should pause", (done) => {
-			return service.actionPause()
+			return service.actionPause({
+					user_id: "iris://data#human-1"
+				})
 				.then((res) => {
 					done();
 				})
@@ -33,7 +37,9 @@ describe("Operator service", () => {
 				});
 		})
 		it("should resume", (done) => {
-			return service.actionResume()
+			return service.actionResume({
+					user_id: "iris://data#human-1"
+				})
 				.then((res) => {
 					done();
 				})
@@ -42,7 +48,9 @@ describe("Operator service", () => {
 				});
 		})
 		it("should get info", (done) => {
-			return service.actionInfo()
+			return service.actionInfo({
+					user_id: "iris://data#human-1"
+				})
 				.then((res) => {
 					console.log(res);
 					done();
@@ -80,7 +88,9 @@ describe("Operator service", () => {
 				});
 		})
 		it("should logout", (done) => {
-			return service.actionLogout()
+			return service.actionLogout({
+					user_id: "iris://data#human-1"
+				})
 				.then((res) => {
 					done();
 				})
