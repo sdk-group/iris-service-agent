@@ -15,7 +15,7 @@ describe("Operator service", () => {
 
 	describe("Operator service", () => {
 		it("should login", (done) => {
-			return service.login()
+			return service.actionLogin()
 				.then((res) => {
 					done();
 				})
@@ -24,7 +24,7 @@ describe("Operator service", () => {
 				});
 		})
 		it("should pause", (done) => {
-			return service.pause()
+			return service.actionPause()
 				.then((res) => {
 					done();
 				})
@@ -33,7 +33,7 @@ describe("Operator service", () => {
 				});
 		})
 		it("should resume", (done) => {
-			return service.resume()
+			return service.actionResume()
 				.then((res) => {
 					done();
 				})
@@ -42,7 +42,7 @@ describe("Operator service", () => {
 				});
 		})
 		it("should get info", (done) => {
-			return service.getInfo()
+			return service.actionInfo()
 				.then((res) => {
 					console.log(res);
 					done();
@@ -52,7 +52,7 @@ describe("Operator service", () => {
 				});
 		})
 		it("should get workplace", (done) => {
-			return service.getWorkPlace()
+			return service.actionWorkplace()
 				.then((res) => {
 					done();
 				})
@@ -61,7 +61,7 @@ describe("Operator service", () => {
 				});
 		})
 		it("should get available workplaces", (done) => {
-			return service.getAvailableWorkPlaces()
+			return service.actionAvailableWorkplaces()
 				.then((res) => {
 					done();
 				})
@@ -70,7 +70,7 @@ describe("Operator service", () => {
 				});
 		})
 		it("should get default WorkPlace", (done) => {
-			return service.defaultWorkPlace()
+			return service.actionDefaultWorkplace()
 				.then((res) => {
 					console.log(res);
 					done();
@@ -80,7 +80,7 @@ describe("Operator service", () => {
 				});
 		})
 		it("should logout", (done) => {
-			return service.logout()
+			return service.actionLogout()
 				.then((res) => {
 					done();
 				})

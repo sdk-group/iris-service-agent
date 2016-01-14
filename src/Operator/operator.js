@@ -10,15 +10,15 @@ class Operator {
 
 	init() {
 		this.iris = new EmployeeApi();
-		iris.initContent();
+		this.iris.initContent();
 	}
 
 	//API
-	changeState() {}
-	login() {}
-	logout() {}
-	pause() {}
-	resume() {}
+	actionChangeState() {}
+	actionLogin() {}
+	actionLogout() {}
+	actionPause() {}
+	actionResume() {}
 
 	actionInfo({
 		user_id: emp_id
@@ -26,14 +26,16 @@ class Operator {
 		return this.iris.getEmployee({
 				keys: [emp_id]
 			})
-			// .then((employee) => {
-			//
-			// });
+			.then((employee) => {
+				console.log("EMPLOYEE", require('util').inspect(employee, {
+					depth: null
+				}));
+			});
 	}
 
-	getWorkPlace() {}
-	defaultWorkPlace() {}
-	getAvailableWorkPlaces() {}
+	actionGetWorkPlace() {}
+	actionDefaultWorkPlace() {}
+	actionGetAvailableWorkPlaces() {}
 }
 
 module.exports = Operator;
