@@ -24,6 +24,7 @@ class Operator {
 			state: state
 		});
 	}
+
 	actionLogin({
 		user_id
 	}) {
@@ -31,6 +32,7 @@ class Operator {
 			user_id, state: 'active'
 		});
 	}
+
 	actionLogout({
 		user_id
 	}) {
@@ -38,6 +40,7 @@ class Operator {
 			user_id, state: 'inactive'
 		});
 	}
+
 	actionPause({
 		user_id
 	}) {
@@ -45,6 +48,7 @@ class Operator {
 			user_id, state: 'paused'
 		});
 	}
+
 	actionResume({
 		user_id
 	}) {
@@ -69,13 +73,18 @@ class Operator {
 				// 	depth: null
 				// }));
 				return this.emitter.addTask('workplace', {
-					_action: 'workplace',
-					data: {
-						query: {
-							allows_role: _.map(roles, 'role')
+						_action: 'workplace',
+						data: {
+							query: {
+								allows_role: _.map(roles, 'role')
+							}
 						}
-					}
-				});
+					})
+					.then((wp) => {
+						return {
+							employee, roles, wp
+						};
+					});
 			});
 	}
 
