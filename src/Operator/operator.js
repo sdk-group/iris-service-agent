@@ -1,7 +1,7 @@
 'use strict'
 
 let emitter = require("global-queue");
-let EmployeeApi = require("resource-managment-framework").EmployeeApi;
+let EmployeeApi = require("resource-management-framework").EmployeeApi;
 
 class Operator {
 	constructor() {
