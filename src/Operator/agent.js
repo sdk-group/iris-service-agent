@@ -1,7 +1,7 @@
 'use strict'
 
 let emitter = require("global-queue");
-let AgentApi = require("resource-management-framework").AgentApi;
+let EmployeeApi = require("resource-management-framework").EmployeeApi;
 
 class Agent {
 	constructor() {
@@ -9,7 +9,7 @@ class Agent {
 	}
 
 	init() {
-		this.iris = new AgentApi();
+		this.iris = new EmployeeApi();
 		this.iris.initContent();
 	}
 
