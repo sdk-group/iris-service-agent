@@ -1,2 +1,2 @@
-# iris-service-operator
+# iris-service-agent
 IRIS operator service

@@ -1,7 +1,7 @@
 'use strict'
 
 let emitter = require("global-queue");
-let EmployeeApi = require("resource-management-framework").EmployeeApi;
+let AgentApi = require("resource-management-framework").AgentApi;
 
 class Operator {
 	constructor() {
@@ -9,7 +9,7 @@ class Operator {
 	}
 
 	init() {
-		this.iris = new EmployeeApi();
+		this.iris = new AgentApi();
 		this.iris.initContent();
 	}
 

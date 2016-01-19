@@ -1,19 +1,19 @@
 'use strict'
 
-let Operator = require("./Operator/operator");
+let Agent = require("./Agent/agent");
 let config = require("./config/db_config.json");
 
-describe("Operator service", () => {
+describe("Agent service", () => {
 	let service = null;
 	let bucket = null;
 	before(() => {
-		service = new Operator();
+		service = new Agent();
 		service.init({
 			bucket: config.buckets.main
 		});
 	});
 
-	describe("Operator service", () => {
+	describe("Agent service", () => {
 		it("should login", (done) => {
 			return service.actionLogin({
 					user_id: "iris://data#human-1"
