@@ -1,5 +1,5 @@
 let events = {
-	operator: {
+	agent: {
 		// change_state: "operator.change_state",
 		// login: "operator.login",
 		// logout: "operator.logout",
@@ -7,8 +7,8 @@ let events = {
 		// resume: "operator.resume",
 		// get_info: "operator.get_info",
 		// get_work_place: "operator.get_work_place",
-		// get_available_work_places: "operator.get_available_workplaces",
-		// default_work_place: "operator.default_workplace"
+		// get_available_work_places: "operator.get_available_workstations",
+		// default_work_place: "operator.default_workstation"
 	}
 }
 
@@ -44,13 +44,13 @@ let tasks = [
 ]
 
 let manifest = {
-	module: require('./operator.js'),
+	module: require('./agent.js'),
 	permissions: [],
 	exposed: true,
 	tasks: tasks,
 	events: {
-		group: 'operator',
-		shorthands: events.operator
+		group: 'agent',
+		shorthands: events.agent
 	}
 };
 

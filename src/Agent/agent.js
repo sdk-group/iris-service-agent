@@ -3,7 +3,7 @@
 let emitter = require("global-queue");
 let EmployeeApi = require("resource-management-framework").EmployeeApi;
 
-class Operator {
+class Agent {
 	constructor() {
 		this.emitter = emitter;
 	}
@@ -72,8 +72,8 @@ class Operator {
 				// console.log("EMPLOYEE", require('util').inspect(employee, {
 				// 	depth: null
 				// }));
-				return this.emitter.addTask('workplace', {
-						_action: 'workplace',
+				return this.emitter.addTask('workstation', {
+						_action: 'workstation',
 						data: {
 							query: {
 								allows_role: _.map(roles, 'role')
@@ -88,11 +88,11 @@ class Operator {
 			});
 	}
 
-	actionWorkplace({
+	actionWorkstation({
 		user_id: emp_id
 	}) {
-		return this.emitter.addTask('workplace', {
-			_action: 'workplace',
+		return this.emitter.addTask('workstation', {
+			_action: 'workstation',
 			data: {
 				query: {
 					occupied_by: emp_id
@@ -100,11 +100,11 @@ class Operator {
 			}
 		});
 	}
-	actionDefaultWorkplace({
+	actionDefaultWorkstation({
 		user_id: emp_id
 	}) {
-		return this.emitter.addTask('workplace', {
-			_action: 'workplace',
+		return this.emitter.addTask('workstation', {
+			_action: 'workstation',
 			data: {
 				query: {
 					device_of: emp_id
@@ -112,7 +112,7 @@ class Operator {
 			}
 		});
 	}
-	actionAvailableWorkplaces({
+	actionAvailableWorkstations({
 		user_id: emp_id
 	}) {
 		return this.iris.getEmployeeRoles(emp_id)
@@ -120,8 +120,8 @@ class Operator {
 				// console.log("EMPLOYEE", require('util').inspect(employee, {
 				// 	depth: null
 				// }));
-				return this.emitter.addTask('workplace', {
-					_action: 'workplace',
+				return this.emitter.addTask('workstation', {
+					_action: 'workstation',
 					data: {
 						query: {
 							allows_role: _.map(roles, 'role')
@@ -132,4 +132,4 @@ class Operator {
 	}
 }
 
-module.exports = Operator;
+module.exports = Agent;

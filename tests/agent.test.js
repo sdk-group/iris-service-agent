@@ -59,8 +59,8 @@ describe("Agent service", () => {
 					done(err);
 				});
 		})
-		it("should get workplace", (done) => {
-			return service.actionWorkplace()
+		it("should get workstation", (done) => {
+			return service.actionWorkstation()
 				.then((res) => {
 					done();
 				})
@@ -68,8 +68,8 @@ describe("Agent service", () => {
 					done(err);
 				});
 		})
-		it("should get available workplaces", (done) => {
-			return service.actionAvailableWorkplaces()
+		it("should get available workstations", (done) => {
+			return service.actionAvailableWorkstations()
 				.then((res) => {
 					done();
 				})
@@ -78,7 +78,7 @@ describe("Agent service", () => {
 				});
 		})
 		it("should get default WorkPlace", (done) => {
-			return service.actionDefaultWorkplace()
+			return service.actionDefaultWorkstation()
 				.then((res) => {
 					console.log(res);
 					done();
