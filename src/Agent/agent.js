@@ -15,12 +15,12 @@ class Agent {
 
 	//API
 	actionChangeState({
-		user_id: emp_id,
+		user_id,
 		user_type: type,
-		state: state
+			state: state
 	}) {
 		return this.iris.setEntryField(false, {
-			keys: [emp_id]
+			keys: user_id
 		}, {
 			state: state
 		});
@@ -65,17 +65,22 @@ class Agent {
 		return this.iris.checkEntryType(user_id)
 			.then((type) => {
 				user_type = type;
-				return this.iris.getEntry(type, {
-					keys: user_id
+				return({
+					roles: this.iris.getEmployeeRoles(user_id),
+					entity: this.iris.getEntry(type, {
+						keys: user_id
+					})
 				});
 			})
-			.then((entity) => {
+			.then(({
+				entity, roles
+			}) => {
 				let promises = {
 					entity: Promise.resolve(entity)
 				};
 				let query = {};
 				if(user_type === 'Employee') {
-					promises.roles = this.iris.getEmployeeRoles(user_id);
+					promises.roles = Promise.resolve(roles);
 					query = {
 						allows_role: _.map(roles, 'role')
 					};

@@ -16,9 +16,10 @@ describe("Agent service", () => {
 	describe("Agent service", () => {
 		it("should login", (done) => {
 			return service.actionLogin({
-					user_id: "iris://data#human-1"
+					user_id: "iris://data#megatron-1"
 				})
 				.then((res) => {
+					console.log("LOGIN", res);
 					done();
 				})
 				.catch((err) => {
@@ -27,7 +28,7 @@ describe("Agent service", () => {
 		})
 		it("should pause", (done) => {
 			return service.actionPause({
-					user_id: "iris://data#human-1"
+					user_id: "iris://data#megatron-1"
 				})
 				.then((res) => {
 					done();
@@ -49,7 +50,7 @@ describe("Agent service", () => {
 		})
 		it("should get info", (done) => {
 			return service.actionInfo({
-					user_id: "iris://data#human-1"
+					user_id: "iris://data#megatron-1"
 				})
 				.then((res) => {
 					console.log(res);
