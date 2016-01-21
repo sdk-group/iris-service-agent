@@ -1,7 +1,7 @@
 'use strict'
 
 let emitter = require("global-queue");
-let EmployeeApi = require("resource-management-framework").EmployeeApi;
+let AgentApi = require("resource-management-framework").AgentApi;
 
 class Agent {
 	constructor() {
@@ -9,16 +9,17 @@ class Agent {
 	}
 
 	init() {
-		this.iris = new EmployeeApi();
+		this.iris = new AgentApi();
 		this.iris.initContent();
 	}
 
 	//API
 	actionChangeState({
 		user_id: emp_id,
+		user_type: type,
 		state: state
 	}) {
-		return this.iris.setEmployeeField({
+		return this.iris.setEntryField(false, {
 			keys: [emp_id]
 		}, {
 			state: state
@@ -58,34 +59,39 @@ class Agent {
 	}
 
 	actionInfo({
-		user_id: emp_id
+		user_id
 	}) {
-		return Promise.props({
-				employee: this.iris.getEmployee({
-					keys: [emp_id]
-				}),
-				roles: this.iris.getEmployeeRoles(emp_id)
+		let user_type;
+		return this.iris.checkEntryType(user_id)
+			.then((type) => {
+				user_type = type;
+				return this.iris.getEntry(type, {
+					keys: user_id
+				});
 			})
-			.then(({
-				employee, roles
-			}) => {
-				// console.log("EMPLOYEE", require('util').inspect(employee, {
-				// 	depth: null
-				// }));
-				return this.emitter.addTask('workstation', {
-						_action: 'workstation',
-						data: {
-							query: {
-								allows_role: _.map(roles, 'role')
-							}
-						}
-					})
-					.then((wp) => {
-						return {
-							employee, roles, wp
-						};
-					});
-			});
+			.then((entity) => {
+				let promises = {
+					entity: Promise.resolve(entity)
+				};
+				let query = {};
+				if(user_type === 'Employee') {
+					promises.roles = this.iris.getEmployeeRoles(user_id);
+					query = {
+						allows_role: _.map(roles, 'role')
+					};
+				} else {
+					query = {
+						keys: entity.default_workstation
+					};
+				}
+				promises.ws = this.emitter.addTask('workstation', {
+					_action: 'workstation',
+					data: {
+						query
+					}
+				});
+				return Promise.props(promises);
+			})
 	}
 
 	actionWorkstation({
@@ -107,7 +113,7 @@ class Agent {
 			_action: 'workstation',
 			data: {
 				query: {
-					device_of: emp_id
+					default_agent: emp_id
 				}
 			}
 		});
