@@ -59,25 +59,29 @@ class Agent {
 	}
 
 	actionInfo({
-		user_id
+		user_id,
+		keys
 	}) {
 		let user_type;
-		return this.iris.checkEntryType(user_id)
+		let id = keys || user_id;
+		return this.iris.checkEntryType(id)
 			.then((type) => {
+				console.log("type", user_id, type);
+
 				user_type = type;
-				return({
-					roles: this.iris.getEmployeeRoles(user_id),
+				return Promise.props({
+					roles: this.iris.getEmployeeRoles(id),
 					entity: this.iris.getEntry(type, {
-						keys: user_id
+						keys: id
 					})
 				});
 			})
 			.then(({
 				entity, roles
 			}) => {
-				let promises = {
-					entity: Promise.resolve(entity)
-				};
+				console.log("ACHTUNG", entity, roles);
+				let promises = {};
+				promises.entity = Promise.resolve(entity);
 				let query = {};
 				if(user_type === 'Employee') {
 					promises.roles = Promise.resolve(roles);
@@ -89,11 +93,10 @@ class Agent {
 						keys: entity.default_workstation
 					};
 				}
-				promises.ws = this.emitter.addTask('workstation', {
+				console.log("SENDING");
+				return this.emitter.addTask('workstation', {
 					_action: 'workstation',
-					data: {
-						query
-					}
+					query
 				});
 				return Promise.props(promises);
 			})
@@ -104,10 +107,8 @@ class Agent {
 	}) {
 		return this.emitter.addTask('workstation', {
 			_action: 'workstation',
-			data: {
-				query: {
-					occupied_by: emp_id
-				}
+			query: {
+				occupied_by: emp_id
 			}
 		});
 	}
@@ -116,10 +117,8 @@ class Agent {
 	}) {
 		return this.emitter.addTask('workstation', {
 			_action: 'workstation',
-			data: {
-				query: {
-					default_agent: emp_id
-				}
+			query: {
+				default_agent: emp_id
 			}
 		});
 	}
@@ -133,10 +132,8 @@ class Agent {
 				// }));
 				return this.emitter.addTask('workstation', {
 					_action: 'workstation',
-					data: {
-						query: {
-							allows_role: _.map(roles, 'role')
-						}
+					query: {
+						allows_role: _.map(roles, 'role')
 					}
 				});
 			});
