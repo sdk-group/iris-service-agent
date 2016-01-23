@@ -93,6 +93,7 @@ class Agent {
 			});
 		});
 	}
+
 	actionDefaultWorkstation({
 		user_id,
 		user_type
@@ -101,9 +102,9 @@ class Agent {
 		return pre.then((type) => {
 			return this.iris.getEntry(type, user_id)
 				.then((entity) => {
-					let default_ws = entity.default_workstation;
+					let default_ws = entity[user_id].default_workstation;
 					if(!default_ws)
-						return Promise.resolve(false);
+						return Promise.reject(new Error("No default workstation for this entity."));
 					return this.emitter.addTask('workstation', {
 						_action: 'by-id',
 						workstation: default_ws
@@ -117,7 +118,6 @@ class Agent {
 	}) {
 		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
 		return pre.then((type) => {
-			console.log("TYPE", type);
 			return(type === 'Employee') ?
 				this.iris.getEmployeeRoles(user_id)
 				.then((roles) => {
