@@ -14,16 +14,22 @@ class Agent {
 	}
 
 	//API
+
 	actionChangeState({
 		user_id,
-		user_type: type,
-			state: state
+		state: state
 	}) {
 		return this.iris.setEntryField(false, {
-			keys: user_id
-		}, {
-			state: state
-		});
+				keys: user_id
+			}, {
+				state: state
+			})
+			.then((res) => {
+				return _.mapValues(res, val => !!(val.cas));
+			})
+			.catch((err) => {
+				return false;
+			});
 	}
 
 	actionLogin({
@@ -60,83 +66,76 @@ class Agent {
 
 	actionInfo({
 		user_id,
-		keys
+		user_type
 	}) {
-		let user_type;
-		let id = keys || user_id;
-		return this.iris.checkEntryType(id)
-			.then((type) => {
-				console.log("type", user_id, type);
-
-				user_type = type;
-				return Promise.props({
-					roles: this.iris.getEmployeeRoles(id),
-					entity: this.iris.getEntry(type, {
-						keys: id
-					})
-				});
-			})
-			.then(({
-				entity, roles
-			}) => {
-				console.log("ACHTUNG", entity, roles);
-				let promises = {};
-				promises.entity = Promise.resolve(entity);
-				let query = {};
-				if(user_type === 'Employee') {
-					promises.roles = Promise.resolve(roles);
-					query = {
-						allows_role: _.map(roles, 'role')
-					};
-				} else {
-					query = {
-						keys: entity.default_workstation
-					};
-				}
-				console.log("SENDING");
-				return this.emitter.addTask('workstation', {
-					_action: 'workstation',
-					query
-				});
-				return Promise.props(promises);
-			})
+		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
+		return pre.then((type) => {
+			return Promise.props({
+				entity: this.iris.getEntry(type, {
+					keys: user_id
+				}),
+				ws: this.actionAvailableWorkstations({
+					user_id, user_type: type
+				})
+			});
+		});
 	}
 
 	actionWorkstation({
-		user_id: emp_id
+		user_id,
+		user_type
 	}) {
-		return this.emitter.addTask('workstation', {
-			_action: 'workstation',
-			query: {
-				occupied_by: emp_id
-			}
+		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
+		return pre.then((type) => {
+			return this.emitter.addTask('workstation', {
+				_action: 'by-agent',
+				user_id
+			});
 		});
 	}
 	actionDefaultWorkstation({
-		user_id: emp_id
+		user_id,
+		user_type
 	}) {
-		return this.emitter.addTask('workstation', {
-			_action: 'workstation',
-			query: {
-				default_agent: emp_id
-			}
+		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
+		return pre.then((type) => {
+			return this.iris.getEntry(type, user_id)
+				.then((entity) => {
+					let default_ws = entity.default_workstation;
+					if(!default_ws)
+						return Promise.resolve(false);
+					return this.emitter.addTask('workstation', {
+						_action: 'by-id',
+						workstation: default_ws
+					});
+				});
 		});
 	}
 	actionAvailableWorkstations({
-		user_id: emp_id
+		user_id,
+		user_type
 	}) {
-		return this.iris.getEmployeeRoles(emp_id)
-			.then((roles) => {
-				// console.log("EMPLOYEE", require('util').inspect(employee, {
-				// 	depth: null
-				// }));
-				return this.emitter.addTask('workstation', {
-					_action: 'workstation',
-					query: {
-						allows_role: _.map(roles, 'role')
-					}
+		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
+		return pre.then((type) => {
+			console.log("TYPE", type);
+			return(type === 'Employee') ?
+				this.iris.getEmployeeRoles(user_id)
+				.then((roles) => {
+					return this.emitter.addTask('workstation', {
+						_action: 'workstation',
+						query: {
+							allows_role: _.map(roles, 'role')
+						}
+					});
+				})
+				.then((res) => {
+					return res['Workstation'];
+				}) :
+				this.actionDefaultWorkstation({
+					user_id, user_type: type
 				});
-			});
+		});
+
 	}
 }
 
