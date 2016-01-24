@@ -8,9 +8,7 @@ describe("Agent service", () => {
 	let bucket = null;
 	before(() => {
 		service = new Agent();
-		service.init({
-			bucket: config.buckets.main
-		});
+		service.init();
 	});
 
 	describe("Agent service", () => {
