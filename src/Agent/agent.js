@@ -81,6 +81,16 @@ class Agent {
 		});
 	}
 
+	actionActiveAgents({
+		agent_type
+	}) {
+		return this.iris.getEntry(agent_type, {
+			query: {
+				state: 'active'
+			}
+		});
+	}
+
 	actionWorkstation({
 		user_id,
 		user_type
