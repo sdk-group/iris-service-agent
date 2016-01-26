@@ -68,6 +68,8 @@ class Agent {
 		user_id,
 		user_type
 	}) {
+		console.log("A INFO");
+
 		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
 		return pre.then((type) => {
 			return Promise.props({
