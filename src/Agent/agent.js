@@ -68,8 +68,6 @@ class Agent {
 		user_id,
 		user_type
 	}) {
-		console.log("A INFO");
-
 		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
 		return pre.then((type) => {
 			return Promise.props({
@@ -128,26 +126,9 @@ class Agent {
 		user_id,
 		user_type
 	}) {
-		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
-		return pre.then((type) => {
-			return(type === 'Employee') ?
-				this.iris.getEmployeeRoles(user_id)
-				.then((roles) => {
-					return this.emitter.addTask('workstation', {
-						_action: 'workstation',
-						query: {
-							allows_role: _.map(roles, 'role')
-						}
-					});
-				})
-				.then((res) => {
-					return res['Workstation'];
-				}) :
-				this.actionDefaultWorkstation({
-					user_id, user_type: type
-				});
+		return this.actionDefaultWorkstation({
+			user_id, user_type
 		});
-
 	}
 }
 
