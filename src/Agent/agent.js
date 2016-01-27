@@ -70,15 +70,23 @@ class Agent {
 	}) {
 		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
 		return pre.then((type) => {
-			return Promise.props({
-				entity: this.iris.getEntry(type, {
+				return this.iris.getEntry(type, {
 					keys: user_id
-				}),
-				ws: this.actionAvailableWorkstations({
-					user_id, user_type: type
-				})
+				});
+			})
+			.then((res) => {
+				console.log("ENTITY", res);
+				let entity = res[user_id];
+				let def_ws = _.isArray(entity.default_workstation) ? entity.default_workstation : [entity.default_workstation];
+				return Promise.props({
+					entity: entity,
+					ws_available: this.emitter.addTask('workstation', {
+						_action: 'by-id',
+						workstation: entity.available_workstation
+					}),
+					ws_default: def_ws
+				});
 			});
-		});
 	}
 
 	actionActiveAgents({
@@ -104,31 +112,43 @@ class Agent {
 		});
 	}
 
-	actionDefaultWorkstation({
+	actionDefaultWorkstations({
 		user_id,
 		user_type
 	}) {
 		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
 		return pre.then((type) => {
-			return this.iris.getEntry(type, user_id)
-				.then((entity) => {
-					let default_ws = entity[user_id].default_workstation;
-					if(!default_ws)
-						return Promise.reject(new Error("No default workstation for this entity."));
-					return this.emitter.addTask('workstation', {
-						_action: 'by-id',
-						workstation: default_ws
+				return this.iris.getEntry(type, user_id)
+					.then((entity) => {
+						let default_ws = entity[user_id].default_workstation;
+						if(!default_ws)
+							return Promise.reject(new Error("No default workstation for this entity."));
+						return this.emitter.addTask('workstation', {
+							_action: 'by-id',
+							workstation: default_ws
+						});
 					});
-				});
-		});
+			})
+			.catch((err) => []);
 	}
 	actionAvailableWorkstations({
 		user_id,
 		user_type
 	}) {
-		return this.actionDefaultWorkstation({
-			user_id, user_type
-		});
+		let pre = user_type ? Promise.resolve(user_type) : this.iris.getEntryType(user_id);
+		return pre.then((type) => {
+				return this.iris.getEntry(type, user_id)
+					.then((entity) => {
+						let default_ws = entity[user_id].available_workstation;
+						if(!default_ws)
+							return Promise.reject(new Error("No available workstation for this entity."));
+						return this.emitter.addTask('workstation', {
+							_action: 'by-id',
+							workstation: default_ws
+						});
+					});
+			})
+			.catch((err) => []);
 	}
 }
 

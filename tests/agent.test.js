@@ -77,7 +77,7 @@ describe("Agent service", () => {
 				});
 		})
 		it("should get default WorkPlace", (done) => {
-			return service.actionDefaultWorkstation()
+			return service.actionDefaultWorkstations()
 				.then((res) => {
 					console.log(res);
 					done();
