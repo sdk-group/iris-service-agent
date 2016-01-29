@@ -22,12 +22,13 @@ class Agent {
 		return this.iris.setEntryField(false, {
 				keys: user_id
 			}, {
-				state: state
+				state
 			})
 			.then((res) => {
 				return _.mapValues(res, val => !!(val.cas));
 			})
 			.catch((err) => {
+				console.log("ER AGR", err.stack);
 				return false;
 			});
 	}
@@ -75,7 +76,7 @@ class Agent {
 				});
 			})
 			.then((res) => {
-				console.log("ENTITY", res);
+				// console.log("ENTITY", res);
 				let entity = res[user_id];
 				let def_ws = _.isArray(entity.default_workstation) ? entity.default_workstation : [entity.default_workstation];
 				return Promise.props({
@@ -109,6 +110,18 @@ class Agent {
 				_action: 'by-agent',
 				user_id
 			});
+		});
+	}
+
+	actionLeave({
+		user_id, user_type, workstation
+	}) {
+		console.log("LOGOUT AG", user_id, user_type, workstation);
+		return this.emitter.addTask('workstation', {
+			_action: 'leave',
+			user_id,
+			user_type,
+			workstation
 		});
 	}
 
