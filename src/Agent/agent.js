@@ -17,13 +17,13 @@ class Agent {
 
 	actionChangeState({
 		user_id,
-		state: state
+		state
 	}) {
 		return this.iris.setEntryField(false, {
 				keys: user_id
 			}, {
 				state
-			})
+			}, false)
 			.then((res) => {
 				return _.mapValues(res, val => !!(val.cas));
 			})
@@ -37,7 +37,8 @@ class Agent {
 		user_id
 	}) {
 		return this.actionChangeState({
-			user_id, state: 'active'
+			user_id,
+			state: 'active'
 		});
 	}
 
@@ -45,7 +46,8 @@ class Agent {
 		user_id
 	}) {
 		return this.actionChangeState({
-			user_id, state: 'inactive'
+			user_id,
+			state: 'inactive'
 		});
 	}
 
@@ -53,7 +55,8 @@ class Agent {
 		user_id
 	}) {
 		return this.actionChangeState({
-			user_id, state: 'paused'
+			user_id,
+			state: 'paused'
 		});
 	}
 
@@ -61,7 +64,8 @@ class Agent {
 		user_id
 	}) {
 		return this.actionChangeState({
-			user_id, state: 'active'
+			user_id,
+			state: 'active'
 		});
 	}
 
@@ -114,7 +118,9 @@ class Agent {
 	}
 
 	actionLeave({
-		user_id, user_type, workstation
+		user_id,
+		user_type,
+		workstation
 	}) {
 		console.log("LOGOUT AG", user_id, user_type, workstation);
 		return this.emitter.addTask('workstation', {
