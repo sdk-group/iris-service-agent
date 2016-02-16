@@ -1,7 +1,8 @@
 'use strict'
 
 let emitter = require("global-queue");
-let AgentApi = require("resource-management-framework").AgentApi;
+let AgentApi = require("resource-management-framework")
+	.AgentApi;
 
 class Agent {
 	constructor() {
@@ -82,14 +83,12 @@ class Agent {
 			.then((res) => {
 				// console.log("ENTITY", res);
 				let entity = res[user_id];
-				let def_ws = _.isArray(entity.default_workstation) ? entity.default_workstation : [entity.default_workstation];
 				return Promise.props({
 					entity: entity,
 					ws_available: this.emitter.addTask('workstation', {
 						_action: 'by-id',
 						workstation: entity.available_workstation
-					}),
-					ws_default: def_ws
+					})
 				});
 			});
 	}
@@ -140,7 +139,7 @@ class Agent {
 				return this.iris.getEntry(type, user_id)
 					.then((entity) => {
 						let default_ws = entity[user_id].default_workstation;
-						if(!default_ws)
+						if (!default_ws)
 							return Promise.reject(new Error("No default workstation for this entity."));
 						return this.emitter.addTask('workstation', {
 							_action: 'by-id',
@@ -159,7 +158,7 @@ class Agent {
 				return this.iris.getEntry(type, user_id)
 					.then((entity) => {
 						let default_ws = entity[user_id].available_workstation;
-						if(!default_ws)
+						if (!default_ws)
 							return Promise.reject(new Error("No available workstation for this entity."));
 						return this.emitter.addTask('workstation', {
 							_action: 'by-id',
