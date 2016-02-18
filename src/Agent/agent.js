@@ -82,7 +82,7 @@ class Agent {
 			.then((res) => {
 				// console.log("ENTITY", res);
 				let entity = res[user_id];
-				let def_ws = _.isArray(entity.default_workstation) ? entity.default_workstation : [entity.default_workstation];
+				let def_ws = _.castArray(entity.default_workstation);
 				return Promise.props({
 					entity: entity,
 					ws_available: this.emitter.addTask('workstation', {
