@@ -1,7 +1,8 @@
 'use strict'
 
 let emitter = require("global-queue");
-let AgentApi = require("resource-management-framework").AgentApi;
+let AgentApi = require("resource-management-framework")
+	.AgentApi;
 
 class Agent {
 	constructor() {
@@ -82,14 +83,12 @@ class Agent {
 			.then((res) => {
 				// console.log("ENTITY", res);
 				let entity = res[user_id];
-				let def_ws = _.castArray(entity.default_workstation);
 				return Promise.props({
 					entity: entity,
 					ws_available: this.emitter.addTask('workstation', {
 						_action: 'by-id',
 						workstation: entity.available_workstation
-					}),
-					ws_default: def_ws
+					})
 				});
 			});
 	}
