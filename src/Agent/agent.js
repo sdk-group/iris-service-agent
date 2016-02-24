@@ -81,7 +81,7 @@ class Agent {
 				});
 			})
 			.then((res) => {
-				// console.log("ENTITY", res);
+				// console.log("ENTITY", res, user_id);
 				let entity = res[user_id];
 				return Promise.props({
 					entity: entity,
@@ -90,6 +90,9 @@ class Agent {
 						workstation: entity.available_workstation
 					})
 				});
+			})
+			.catch((err) => {
+				console.log("AGENT INFO ERR", err.stack);
 			});
 	}
 
@@ -121,7 +124,6 @@ class Agent {
 		user_type,
 		workstation
 	}) {
-		console.log("LOGOUT AG", user_id, user_type, workstation);
 		return this.emitter.addTask('workstation', {
 			_action: 'leave',
 			user_id,
@@ -139,7 +141,7 @@ class Agent {
 				return this.iris.getEntry(type, user_id)
 					.then((entity) => {
 						let default_ws = entity[user_id].default_workstation;
-						if(!default_ws)
+						if (!default_ws)
 							return Promise.reject(new Error("No default workstation for this entity."));
 						return this.emitter.addTask('workstation', {
 							_action: 'by-id',
@@ -158,7 +160,7 @@ class Agent {
 				return this.iris.getEntry(type, user_id)
 					.then((entity) => {
 						let default_ws = entity[user_id].available_workstation;
-						if(!default_ws)
+						if (!default_ws)
 							return Promise.reject(new Error("No available workstation for this entity."));
 						return this.emitter.addTask('workstation', {
 							_action: 'by-id',
