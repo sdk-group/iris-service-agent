@@ -9,47 +9,13 @@ class Agent {
 		this.emitter = emitter;
 	}
 
-	init(config) {
+	init() {
 		this.iris = new AgentApi();
 		this.iris.initContent();
-		this.agents_update_interval = config.agents_update_interval || 60;
 	}
 
-	// launch() {
-	// 	this.emitter.emit('taskrunner.add.task', {
-	// 		now: 0,
-	// 		time: 0,
-	// 		task_name: "",
-	// 		module_name: "agent",
-	// 		task_id: "employee-cache-update",
-	// 		regular: true,
-	// 		task_type: "add-task",
-	// 		params: {
-	// 			_action: "employee-cache-update"
-	// 		}
-	// 	});
-	// 	return Promise.resolve(true);
-	// }
 
 	//API
-	// actionEmployeeCacheUpdate() {
-	// 	return this.iris.updateAgentsCache()
-	// 		.then((res) => {
-	// 			this.emitter.emit('taskrunner.add.task', {
-	// 				now,
-	// 				time: this.agents_update_interval,
-	// 				task_name: "",
-	// 				module_name: "agent",
-	// 				task_id: "employee-cache-update",
-	// 				regular: true,
-	// 				task_type: "add-task",
-	// 				params: {
-	// 					_action: "employee-cache-update"
-	// 				}
-	// 			});
-	// 		});
-	// }
-
 	actionChangeState({
 		user_id,
 		state
@@ -60,11 +26,15 @@ class Agent {
 				state
 			}, false)
 			.then((res) => {
-				return _.mapValues(res, val => !!(val.cas));
+				return {
+					success: !!res[user_id].cas
+				};
 			})
 			.catch((err) => {
 				console.log("ER AGR", err.stack);
-				return false;
+				return {
+					success: false
+				};
 			});
 	}
 
@@ -90,6 +60,7 @@ class Agent {
 		user_id,
 		workstation = []
 	}) {
+		let response;
 		return this.emitter.addTask('ticket', {
 				_action: 'ticket',
 				query: {
@@ -107,9 +78,7 @@ class Agent {
 				});
 			})
 			.then((res) => {
-				response = {
-					success: res
-				};
+				response = res;
 				return Promise.map(_.castArray(workstation), (ws) => {
 					return this.emitter.addTask('queue', {
 						_action: "ticket-close-current",
@@ -122,7 +91,7 @@ class Agent {
 				return response;
 			})
 			.catch(err => {
-				console.log("PAUSE ERR", err.stack);
+				console.log("PAUSE ERR", err.message);
 				return {
 					success: false,
 					reason: err.message
@@ -225,7 +194,7 @@ class Agent {
 				return response;
 			})
 			.catch(err => {
-				console.log("LEAVE ERR", err.stack);
+				console.log("LEAVE ERR", err.message);
 				return {
 					success: false,
 					reason: err.message
