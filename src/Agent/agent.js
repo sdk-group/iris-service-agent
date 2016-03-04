@@ -87,12 +87,47 @@ class Agent {
 	}
 
 	actionPause({
-		user_id
+		user_id,
+		workstation = []
 	}) {
-		return this.actionChangeState({
-			user_id,
-			state: 'paused'
-		});
+		return this.emitter.addTask('ticket', {
+				_action: 'ticket',
+				query: {
+					state: ['called'],
+					operator: user_id
+				}
+			})
+			.then((res) => {
+				if (!_.isEmpty(_.values(res)))
+					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
+
+				return this.actionChangeState({
+					user_id,
+					state: 'paused'
+				});
+			})
+			.then((res) => {
+				response = {
+					success: res
+				};
+				return Promise.map(_.castArray(workstation), (ws) => {
+					return this.emitter.addTask('queue', {
+						_action: "ticket-close-current",
+						user_id,
+						workstation: ws
+					});
+				});
+			})
+			.then((res) => {
+				return response;
+			})
+			.catch(err => {
+				console.log("PAUSE ERR", err.stack);
+				return {
+					success: false,
+					reason: err.message
+				};
+			});
 	}
 
 	actionResume({
@@ -155,11 +190,47 @@ class Agent {
 		user_id,
 		workstation
 	}) {
-		return this.emitter.addTask('workstation', {
-			_action: 'leave',
-			user_id,
-			workstation
-		});
+		let response;
+		return this.emitter.addTask('ticket', {
+				_action: 'ticket',
+				query: {
+					state: ['called'],
+					operator: user_id
+				}
+			})
+			.then((res) => {
+				console.log("TICKS", res);
+				if (!_.isEmpty(_.values(res)))
+					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
+
+				return this.emitter.addTask('workstation', {
+					_action: 'leave',
+					user_id,
+					workstation
+				});
+			})
+			.then((res) => {
+				response = res;
+				if (!res.success)
+					return Promise.reject(new Error(`User ${user_id} failed to leave workstations ${workstation}`));
+				return Promise.map(_.castArray(workstation), (ws) => {
+					return this.emitter.addTask('queue', {
+						_action: "ticket-close-current",
+						user_id,
+						workstation: ws
+					});
+				});
+			})
+			.then((res) => {
+				return response;
+			})
+			.catch(err => {
+				console.log("LEAVE ERR", err.stack);
+				return {
+					success: false,
+					reason: err.message
+				};
+			});
 	}
 
 	actionDefaultWorkstations({
