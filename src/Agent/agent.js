@@ -1,21 +1,50 @@
 'use strict'
-
 let emitter = require("global-queue");
 let AgentApi = require("resource-management-framework")
 	.AgentApi;
-
 class Agent {
 	constructor() {
 		this.emitter = emitter;
 	}
-
-	init() {
+	init(config) {
 		this.iris = new AgentApi();
 		this.iris.initContent();
+		this.cache_active_agents_interval = config.cache_active_agents_interval || 60;
 	}
-
-
-	//API
+	launch() {
+			this.emitter.emit('taskrunner.add.task', {
+				now: 0,
+				time: 0,
+				task_name: "",
+				module_name: "agent",
+				task_id: "cache-active-agents",
+				regular: true,
+				task_type: "add-task",
+				params: {
+					_action: "cache-active-agents"
+				}
+			});
+			return Promise.resolve(true);
+		}
+		//API
+	actionCacheActiveAgents() {
+		return this.iris.cacheActiveAgents()
+			.then((res) => {
+				this.emitter.emit('taskrunner.add.task', {
+					now: 0,
+					time: this.cache_active_agents_interval,
+					task_name: "",
+					module_name: "agent",
+					task_id: "cache-active-agents",
+					regular: true,
+					task_type: "add-task",
+					params: {
+						_action: "cache-active-agents"
+					}
+				});
+				return Promise.resolve(true);
+			});
+	}
 	actionChangeState({
 		user_id,
 		state
@@ -37,7 +66,6 @@ class Agent {
 				};
 			});
 	}
-
 	actionLogin({
 		user_id
 	}) {
@@ -46,7 +74,6 @@ class Agent {
 			state: 'active'
 		});
 	}
-
 	actionLogout({
 		user_id
 	}) {
@@ -55,7 +82,6 @@ class Agent {
 			state: 'inactive'
 		});
 	}
-
 	actionPause({
 		user_id,
 		workstation = []
@@ -71,7 +97,6 @@ class Agent {
 			.then((res) => {
 				if (!_.isEmpty(_.values(res)))
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
-
 				return this.actionChangeState({
 					user_id,
 					state: 'paused'
@@ -98,7 +123,6 @@ class Agent {
 				};
 			});
 	}
-
 	actionResume({
 		user_id
 	}) {
@@ -107,7 +131,6 @@ class Agent {
 			state: 'active'
 		});
 	}
-
 	actionInfo({
 		user_id,
 		user_type
@@ -133,17 +156,18 @@ class Agent {
 				console.log("AGENT INFO ERR", err.stack);
 			});
 	}
-
 	actionActiveAgents({
 		agent_type
 	}) {
-		return this.iris.getEntry(agent_type, {
-			query: {
-				state: 'active'
-			}
-		});
+		return this.iris.getActiveAgents()
+			.then((res) => {
+				return res.content[agent_type];
+			})
+			.catch((err) => {
+				console.log("GET ACTIVE AG ERR", err.stack);
+				return [];
+			});
 	}
-
 	actionWorkstation({
 		user_id
 	}) {
@@ -154,7 +178,6 @@ class Agent {
 			});
 		});
 	}
-
 	actionLeave({
 		user_id,
 		workstation
@@ -171,7 +194,6 @@ class Agent {
 				console.log("TICKS", res);
 				if (!_.isEmpty(_.values(res)))
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
-
 				return this.emitter.addTask('workstation', {
 					_action: 'leave',
 					user_id,
@@ -201,7 +223,6 @@ class Agent {
 				};
 			});
 	}
-
 	actionDefaultWorkstations({
 		user_id,
 		user_type
@@ -225,7 +246,6 @@ class Agent {
 				console.log("AV WS ERR", err.stack);
 			});
 	}
-
 	actionAvailableWorkstations({
 		user_id,
 		user_type
@@ -249,6 +269,14 @@ class Agent {
 				console.log("AV WS ERR", err.stack);
 			});
 	}
+	actionById({
+		agent_id
+	}) {
+		return this.iris.getEntryTypeless(agent_id)
+			.then((res) => res[agent_id])
+			.catch((err) => {
+				console.log("AG BYID ERR", err.stack);
+			});
+	}
 }
-
 module.exports = Agent;
