@@ -9,7 +9,6 @@ class Agent {
 	init(config) {
 		this.iris = new AgentApi();
 		this.iris.initContent();
-		this.cache_active_agents_interval = config.cache_active_agents_interval || 60;
 	}
 	launch() {
 			this.emitter.emit('taskrunner.add.task', {
@@ -28,22 +27,7 @@ class Agent {
 		}
 		//API
 	actionCacheActiveAgents() {
-		return this.iris.cacheActiveAgents()
-			.then((res) => {
-				this.emitter.emit('taskrunner.add.task', {
-					now: 0,
-					time: this.cache_active_agents_interval,
-					task_name: "",
-					module_name: "agent",
-					task_id: "cache-active-agents",
-					regular: true,
-					task_type: "add-task",
-					params: {
-						_action: "cache-active-agents"
-					}
-				});
-				return Promise.resolve(true);
-			});
+		return this.iris.cacheActiveAgents();
 	}
 	actionChangeState({
 		user_id,
@@ -55,6 +39,19 @@ class Agent {
 				state
 			}, false)
 			.then((res) => {
+				this.emitter.emit('taskrunner.add.task', {
+					now: 0,
+					time: 0,
+					task_name: "",
+					module_name: "agent",
+					task_id: "cache-active-agents",
+					regular: true,
+					task_type: "add-task",
+					params: {
+						_action: "cache-active-agents"
+					}
+				});
+				// console.log("USER", user_id, res);
 				return {
 					success: !!res[user_id].cas
 				};
