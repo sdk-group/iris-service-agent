@@ -2,6 +2,8 @@
 let emitter = require("global-queue");
 let AgentApi = require("resource-management-framework")
 	.AgentApi;
+let moment = require('moment-timezone');
+
 class Agent {
 	constructor() {
 		this.emitter = emitter;
@@ -11,24 +13,26 @@ class Agent {
 		this.iris.initContent();
 	}
 	launch() {
-			this.emitter.emit('taskrunner.add.task', {
-				now: 0,
-				time: 0,
-				task_name: "",
-				module_name: "agent",
-				task_id: "cache-active-agents",
-				regular: true,
-				task_type: "add-task",
-				params: {
-					_action: "cache-active-agents"
-				}
-			});
-			return Promise.resolve(true);
-		}
-		//API
+		this.emitter.emit('taskrunner.add.task', {
+			now: 0,
+			time: 0,
+			task_name: "",
+			module_name: "agent",
+			task_id: "cache-active-agents",
+			regular: true,
+			task_type: "add-task",
+			params: {
+				_action: "cache-active-agents"
+			}
+		});
+		return Promise.resolve(true);
+	}
+
+	//API
 	actionCacheActiveAgents() {
 		return this.iris.cacheActiveAgents();
 	}
+
 	actionChangeState({
 		user_id,
 		state
@@ -63,6 +67,7 @@ class Agent {
 				};
 			});
 	}
+
 	actionLogin({
 		user_id
 	}) {
@@ -71,6 +76,7 @@ class Agent {
 			state: 'active'
 		});
 	}
+
 	actionLogout({
 		user_id
 	}) {
@@ -79,20 +85,40 @@ class Agent {
 			state: 'inactive'
 		});
 	}
+
 	actionPause({
 		user_id,
+		user_type,
 		workstation = []
 	}) {
 		let response;
-		return this.emitter.addTask('ticket', {
-				_action: 'ticket',
-				query: {
-					state: ['called'],
-					operator: user_id
-				}
+		let curr_ws;
+		if (user_type != "Employee")
+			return {
+				success: false,
+				reason: "Cannot pause a System Entity."
+			}
+
+		return this.emitter.addTask('workstation', {
+				_action: 'workstation-organization-data',
+				workstation
+			})
+			.then((workstations) => {
+				curr_ws = workstations;
+				return Promise.all(_.map(workstations, (ws) => {
+					return this.emitter.addTask('ticket', {
+						_action: 'ticket',
+						query: {
+							state: ['called'],
+							operator: user_id,
+							org_destination: ws.org_merged.id,
+							dedicated_date: moment.tz(ws.org_merged.org_timezone)
+						}
+					});
+				}));
 			})
 			.then((res) => {
-				if (!_.isEmpty(_.values(res)))
+				if (!_.isEmpty(_.flatMap(res, _.values)))
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
 				return this.actionChangeState({
 					user_id,
@@ -110,6 +136,19 @@ class Agent {
 				});
 			})
 			.then((res) => {
+				// console.log("PAUSE RESPONSE", response);
+				_.map(curr_ws, {
+					ws,
+					org_addr,
+					org_chain,
+					org_merged
+				} => {
+					this.emitter.emit('queue.emit.head', {
+						user_id,
+						org_addr,
+						org_merged
+					});
+				});
 				return response;
 			})
 			.catch(err => {
@@ -120,6 +159,7 @@ class Agent {
 				};
 			});
 	}
+
 	actionResume({
 		user_id
 	}) {
@@ -128,21 +168,28 @@ class Agent {
 			state: 'active'
 		});
 	}
+
 	actionInfo({
 		user_id,
 		user_type
 	}) {
-		return Promise.resolve(true)
-			.then(() => {
-				return user_type ? this.iris.getEntry(user_type, {
+		return Promise.props({
+				permissions: this.iris.getAgentPermissions(),
+				agent: user_type ? this.iris.getEntry(user_type, {
 					keys: user_id
-				}) : this.iris.getEntryTypeless(user_id);
+				}) : this.iris.getEntryTypeless(user_id)
 			})
-			.then((res) => {
+			.then(({
+				agent,
+				permissions
+			}) => {
 				// console.log("ENTITY", res, user_id);
-				let entity = res[user_id];
+				let entity = agent[user_id];
+				entity.permissions = _.mapValues(entity.permissions, (perm, key) => {
+					return _.merge(permissions[key].params, perm);
+				});
 				return Promise.props({
-					entity: entity,
+					entity,
 					ws_available: this.emitter.addTask('workstation', {
 						_action: 'by-id',
 						workstation: entity.available_workstation
@@ -153,6 +200,7 @@ class Agent {
 				console.log("AGENT INFO ERR", err.stack);
 			});
 	}
+
 	actionActiveAgents({
 		agent_type
 	}) {
@@ -165,6 +213,7 @@ class Agent {
 				return [];
 			});
 	}
+
 	actionWorkstation({
 		user_id
 	}) {
@@ -175,21 +224,31 @@ class Agent {
 			});
 		});
 	}
+
 	actionLeave({
 		user_id,
-		workstation
+		workstation = []
 	}) {
 		let response;
-		return this.emitter.addTask('ticket', {
-				_action: 'ticket',
-				query: {
-					state: ['called'],
-					operator: user_id
-				}
+		return this.emitter.addTask('workstation', {
+				_action: 'workstation-organization-data',
+				workstation
+			})
+			.then((workstations) => {
+				return Promise.all(_.map(workstations, (ws) => {
+					return this.emitter.addTask('ticket', {
+						_action: 'ticket',
+						query: {
+							state: ['called'],
+							operator: user_id,
+							org_destination: ws.org_merged.id,
+							dedicated_date: moment.tz(ws.org_merged.org_timezone)
+						}
+					});
+				}));
 			})
 			.then((res) => {
-				console.log("TICKS", res);
-				if (!_.isEmpty(_.values(res)))
+				if (!_.isEmpty(_.flatMap(res, _.values)))
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
 				return this.emitter.addTask('workstation', {
 					_action: 'leave',
@@ -220,6 +279,7 @@ class Agent {
 				};
 			});
 	}
+
 	actionDefaultWorkstations({
 		user_id,
 		user_type
@@ -243,6 +303,7 @@ class Agent {
 				console.log("AV WS ERR", err.stack);
 			});
 	}
+
 	actionAvailableWorkstations({
 		user_id,
 		user_type
@@ -266,6 +327,7 @@ class Agent {
 				console.log("AV WS ERR", err.stack);
 			});
 	}
+
 	actionById({
 		agent_id
 	}) {
