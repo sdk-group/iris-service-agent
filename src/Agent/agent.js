@@ -137,12 +137,12 @@ class Agent {
 			})
 			.then((res) => {
 				// console.log("PAUSE RESPONSE", response);
-				_.map(curr_ws, {
+				_.map(curr_ws, ({
 					ws,
 					org_addr,
 					org_chain,
 					org_merged
-				} => {
+				}) => {
 					this.emitter.emit('queue.emit.head', {
 						user_id,
 						org_addr,
