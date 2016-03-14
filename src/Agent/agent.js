@@ -19,7 +19,6 @@ class Agent {
 			task_name: "",
 			module_name: "agent",
 			task_id: "cache-active-agents",
-			regular: true,
 			task_type: "add-task",
 			params: {
 				_action: "cache-active-agents"
@@ -49,7 +48,6 @@ class Agent {
 					task_name: "",
 					module_name: "agent",
 					task_id: "cache-active-agents",
-					regular: true,
 					task_type: "add-task",
 					params: {
 						_action: "cache-active-agents"
