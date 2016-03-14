@@ -205,7 +205,7 @@ class Agent {
 	}) {
 		return this.iris.getActiveAgents()
 			.then((res) => {
-				console.log("AGENTS", _.flattenDeep(_.values(_.pick(res[agent_type], _.castArray(state)))));
+				// console.log("AGENTS", _.flattenDeep(_.values(_.pick(res[agent_type], _.castArray(state)))));
 				return _.flattenDeep(_.values(_.pick(res[agent_type], _.castArray(state))));
 			})
 			.catch((err) => {
