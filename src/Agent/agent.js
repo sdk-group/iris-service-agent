@@ -14,7 +14,6 @@ class Agent {
 	}
 	launch() {
 		this.emitter.emit('taskrunner.add.task', {
-			now: 0,
 			time: 0,
 			task_name: "",
 			module_name: "agent",
@@ -43,7 +42,6 @@ class Agent {
 			}, false)
 			.then((res) => {
 				this.emitter.emit('taskrunner.add.task', {
-					now: 0,
 					time: 0,
 					task_name: "",
 					module_name: "agent",
