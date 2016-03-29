@@ -65,12 +65,28 @@ class Agent {
 	}
 
 	actionLogin({
-		user_id
+		user_id,
+		workstation
 	}) {
-		return this.actionChangeState({
-			user_id,
-			state: 'active'
-		});
+		return this.emitter.addTask('workstation', {
+				_action: 'workstation-organization-data',
+				workstation
+			})
+			.then((workstations) => {
+				let ws = workstations[workstation];
+				this.emitter.emit('digital-display.emit.command', {
+					org_addr: ws.org_addr,
+					org_merged: ws.org_merged,
+					workstation: ws.ws,
+					command: 'refresh'
+				});
+
+				return this.actionChangeState({
+					user_id,
+					state: 'active'
+				});
+			})
+
 	}
 
 	actionLogout({
@@ -102,6 +118,12 @@ class Agent {
 			.then((workstations) => {
 				curr_ws = workstations;
 				return Promise.all(_.map(workstations, (ws) => {
+					this.emitter.emit('digital-display.emit.command', {
+						org_addr: ws.org_addr,
+						org_merged: ws.org_merged,
+						workstation: ws.ws,
+						command: 'refresh'
+					});
 					return this.emitter.addTask('ticket', {
 						_action: 'ticket',
 						query: {
@@ -234,6 +256,12 @@ class Agent {
 			})
 			.then((workstations) => {
 				return Promise.all(_.map(workstations, (ws) => {
+					this.emitter.emit('digital-display.emit.command', {
+						org_addr: ws.org_addr,
+						org_merged: ws.org_merged,
+						workstation: ws.ws,
+						command: 'clear'
+					});
 					return this.emitter.addTask('ticket', {
 						_action: 'ticket',
 						query: {
