@@ -79,7 +79,7 @@ class Agent {
 					this.emitter.emit('digital-display.emit.command', {
 						org_addr: ws.org_addr,
 						org_merged: ws.org_merged,
-						workstation: ws.ws,
+						workstation,
 						command: 'refresh'
 					});
 				}
@@ -125,7 +125,7 @@ class Agent {
 						this.emitter.emit('digital-display.emit.command', {
 							org_addr: ws.org_addr,
 							org_merged: ws.org_merged,
-							workstation: ws.ws,
+							workstation,
 							command: 'refresh'
 						});
 					}
@@ -231,7 +231,11 @@ class Agent {
 		return this.iris.getActiveAgents()
 			.then((res) => {
 				// console.log("AGENTS", _.flattenDeep(_.values(_.pick(res[agent_type], _.castArray(state)))));
-				return _.flattenDeep(_.values(_.pick(res[agent_type], _.castArray(state))));
+				return _(res[agent_type])
+					.pick(state)
+					.values()
+					.flattenDeep()
+					.value();
 			})
 			.catch((err) => {
 				console.log("GET ACTIVE AG ERR", err.stack);
@@ -266,7 +270,7 @@ class Agent {
 						this.emitter.emit('digital-display.emit.command', {
 							org_addr: ws.org_addr,
 							org_merged: ws.org_merged,
-							workstation: ws.ws,
+							workstation,
 							command: 'clear'
 						});
 					}
