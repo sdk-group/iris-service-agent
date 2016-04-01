@@ -194,7 +194,9 @@ class Agent {
 
 	actionInfo({
 		user_id,
-		user_type
+		user_type,
+		parent,
+		satellite_type
 	}) {
 		return Promise.props({
 				permissions: this.iris.getAgentPermissions(),
