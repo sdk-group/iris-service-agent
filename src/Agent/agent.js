@@ -374,7 +374,7 @@ class Agent {
 		agent_id
 	}) {
 		return this.iris.getEntryTypeless(agent_id)
-			.then((res) => res[agent_id])
+			.then((res) => _.isArray(agent_id) ? res : res[agent_id])
 			.catch((err) => {
 				console.log("AG BYID ERR", err.stack);
 			});
