@@ -247,17 +247,6 @@ class Agent {
 			});
 	}
 
-	actionWorkstation({
-		user_id
-	}) {
-		return pre.then((type) => {
-			return this.emitter.addTask('workstation', {
-				_action: 'by-agent',
-				user_id
-			});
-		});
-	}
-
 	actionLeave({
 		user_id,
 		user_type,
