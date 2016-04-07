@@ -216,7 +216,7 @@ class Agent {
 				return Promise.props({
 					entity,
 					ws_available: this.emitter.addTask('workstation', {
-						_action: 'by-id',
+						_action: 'workstation',
 						workstation: entity.available_workstation,
 						parent,
 						satellite_type
