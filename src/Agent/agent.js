@@ -1,12 +1,12 @@
 'use strict'
-let emitter = require("global-queue");
+
 let AgentApi = require("resource-management-framework")
 	.AgentApi;
 let moment = require('moment-timezone');
 
 class Agent {
 	constructor() {
-		this.emitter = emitter;
+		this.emitter = message_bus;
 	}
 	init(config) {
 		this.iris = new AgentApi();
