@@ -222,9 +222,6 @@ class Agent {
 						satellite_type
 					})
 				});
-			})
-			.catch((err) => {
-				console.log("AGENT INFO ERR", err.stack);
 			});
 	}
 
@@ -240,10 +237,6 @@ class Agent {
 					.values()
 					.flattenDeep()
 					.value();
-			})
-			.catch((err) => {
-				console.log("GET ACTIVE AG ERR", err.stack);
-				return [];
 			});
 	}
 
@@ -329,9 +322,6 @@ class Agent {
 					_action: 'by-id',
 					workstation: default_ws
 				});
-			})
-			.catch((err) => {
-				console.log("AV WS ERR", err.stack);
 			});
 	}
 
@@ -353,9 +343,6 @@ class Agent {
 					_action: 'by-id',
 					workstation: default_ws
 				});
-			})
-			.catch((err) => {
-				console.log("AV WS ERR", err.stack);
 			});
 	}
 
@@ -363,10 +350,7 @@ class Agent {
 		agent_id
 	}) {
 		return this.iris.getEntryTypeless(agent_id)
-			.then((res) => _.isArray(agent_id) ? res : res[agent_id])
-			.catch((err) => {
-				console.log("AG BYID ERR", err.stack);
-			});
+			.then((res) => _.isArray(agent_id) ? res : res[agent_id]);
 	}
 }
 module.exports = Agent;
