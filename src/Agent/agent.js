@@ -208,7 +208,7 @@ class Agent {
 				agent,
 				permissions
 			}) => {
-				// console.log("ENTITY", res, user_id);
+				// console.log("ENTITY", agent, permissions, user_id);
 				let entity = agent[user_id];
 				entity.permissions = _.mapValues(entity.permissions, (perm, key) => {
 					return _.merge(permissions[key].params, perm);
