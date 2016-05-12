@@ -16,6 +16,7 @@ class Agent {
 		this.emitter.emit('taskrunner.add.task', {
 			time: 0,
 			task_name: "",
+			solo: true,
 			module_name: "agent",
 			task_id: "cache-active-agents",
 			task_type: "add-task",
@@ -42,8 +43,9 @@ class Agent {
 			}, false)
 			.then((res) => {
 				this.emitter.emit('taskrunner.add.task', {
-					time: 0,
+					time: 15,
 					task_name: "",
+					solo: true,
 					module_name: "agent",
 					task_id: "cache-active-agents",
 					task_type: "add-task",
