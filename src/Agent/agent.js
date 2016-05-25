@@ -13,7 +13,7 @@ class Agent {
 		this.iris.initContent();
 	}
 	launch() {
-		this.emitter.emit('taskrunner.add.task', {
+		this.emitter.command('taskrunner.add.task', {
 			time: 0,
 			task_name: "",
 			solo: true,
@@ -42,7 +42,7 @@ class Agent {
 				state
 			}, false)
 			.then((res) => {
-				this.emitter.emit('taskrunner.add.task', {
+				this.emitter.command('taskrunner.add.task', {
 					time: 15,
 					task_name: "",
 					solo: true,
@@ -78,7 +78,7 @@ class Agent {
 			.then((workstations) => {
 				if (user_type !== "SystemEntity") {
 					let ws = workstations[workstation];
-					this.emitter.emit('digital-display.emit.command', {
+					this.emitter.command('digital-display.emit.command', {
 						org_addr: ws.org_addr,
 						org_merged: ws.org_merged,
 						workstation,
@@ -124,7 +124,7 @@ class Agent {
 				return Promise.all(_.map(workstations, (ws) => {
 					if (user_type !== "SystemEntity") {
 
-						this.emitter.emit('digital-display.emit.command', {
+						this.emitter.command('digital-display.emit.command', {
 							org_addr: ws.org_addr,
 							org_merged: ws.org_merged,
 							workstation,
@@ -168,7 +168,7 @@ class Agent {
 					org_chain,
 					org_merged
 				}) => {
-					this.emitter.emit('queue.emit.head', {
+				this.emitter.command('queue.emit.head', {
 						user_id,
 						org_addr,
 						org_merged
@@ -256,7 +256,7 @@ class Agent {
 			.then((workstations) => {
 				return Promise.all(_.map(workstations, (ws) => {
 					if (user_type !== "SystemEntity") {
-						this.emitter.emit('digital-display.emit.command', {
+						this.emitter.command('digital-display.emit.command', {
 							org_addr: ws.org_addr,
 							org_merged: ws.org_merged,
 							workstation,
