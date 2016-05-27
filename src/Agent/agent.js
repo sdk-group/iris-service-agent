@@ -14,7 +14,7 @@ class Agent {
 	}
 	launch() {
 		this.emitter.command('taskrunner.add.task', {
-			time: 0,
+			time: 15,
 			task_name: "",
 			solo: true,
 			module_name: "agent",
@@ -168,7 +168,7 @@ class Agent {
 					org_chain,
 					org_merged
 				}) => {
-				this.emitter.command('queue.emit.head', {
+					this.emitter.command('queue.emit.head', {
 						user_id,
 						org_addr,
 						org_merged
