@@ -2,7 +2,6 @@
 
 let AgentApi = require("resource-management-framework")
 	.AgentApi;
-let moment = require('moment-timezone');
 
 class Agent {
 	constructor() {
