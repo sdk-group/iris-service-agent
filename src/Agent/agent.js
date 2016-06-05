@@ -53,14 +53,9 @@ class Agent {
 					}
 				});
 				// console.log("USER", user_id, res);
+				global.logger && logger.info("Agent %s changes state to %s", user_id, state);
 				return {
 					success: !!res[user_id].cas
-				};
-			})
-			.catch((err) => {
-				console.log("ER AGR", err.stack);
-				return {
-					success: false
 				};
 			});
 	}
@@ -177,6 +172,11 @@ class Agent {
 			})
 			.catch(err => {
 				console.log("PAUSE ERR", err.message);
+				global.logger && logger.info(
+					err, {
+						module: 'agent',
+						method: 'pause'
+					});
 				return {
 					success: false,
 					reason: err.message
@@ -299,6 +299,11 @@ class Agent {
 			})
 			.catch(err => {
 				console.log("LEAVE ERR", err.message);
+				global.logger && logger.info(
+					err, {
+						module: 'agent',
+						method: 'leave'
+					});
 				return {
 					success: false,
 					reason: err.message
