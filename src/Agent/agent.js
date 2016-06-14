@@ -42,7 +42,7 @@ class Agent {
 			}, false)
 			.then((res) => {
 				this.emitter.command('taskrunner.add.task', {
-					time: 15,
+					time: 0,
 					task_name: "",
 					solo: true,
 					module_name: "agent",
@@ -217,12 +217,11 @@ class Agent {
 				return Promise.props({
 					entity,
 					ws_available: this.emitter.addTask('workstation', {
-							_action: 'workstation',
-							workstation: entity.available_workstation,
-							parent,
-							satellite_type
-						})
-						.then(res => _.mapValues(res, r => _.pick(r, ['id', 'label', 'device_type'])))
+						_action: 'workstation',
+						workstation: entity.available_workstation,
+						parent,
+						satellite_type
+					})
 				});
 			});
 	}
