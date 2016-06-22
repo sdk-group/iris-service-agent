@@ -35,11 +35,14 @@ class Agent {
 		user_id,
 		state
 	}) {
-		return this.iris.setEntryField(false, {
-				keys: user_id
-			}, {
-				state
-			}, false)
+		return this.iris.getEntryTypeless(user_id)
+			.then((res) => {
+				let agents = _.map(res, a => {
+					a.state = state;
+					return a;
+				});
+				return this.iris.setEntryTypeless(agents);
+			})
 			.then((res) => {
 				this.emitter.command('taskrunner.add.task', {
 					time: 0,
@@ -55,7 +58,7 @@ class Agent {
 				// console.log("USER", user_id, res);
 				global.logger && logger.info("Agent %s changes state to %s", user_id, state);
 				return {
-					success: !!res[user_id].cas
+					success: true
 				};
 			});
 	}
