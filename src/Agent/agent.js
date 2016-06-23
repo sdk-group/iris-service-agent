@@ -37,10 +37,14 @@ class Agent {
 	}) {
 		return this.iris.getEntryTypeless(user_id)
 			.then((res) => {
-				let agents = _.map(res, a => {
-					a.state = state;
-					return a;
-				});
+				let agents = _(res)
+					.values()
+					.compact()
+					.map(a => {
+						a.state = state;
+						return a;
+					})
+					.value();
 				return this.iris.setEntryTypeless(agents);
 			})
 			.then((res) => {
