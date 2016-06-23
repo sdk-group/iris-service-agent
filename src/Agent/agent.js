@@ -99,6 +99,22 @@ class Agent {
 		});
 	}
 
+	actionLogoutAll({
+		organization,
+		agent_type = 'Employee'
+	}) {
+		return this.actionActiveAgents({
+				organization,
+				agent_type,
+				state: ['active', 'paused']
+			})
+			.then((user_id) => {
+				return this.actionLogout({
+					user_id
+				});
+			});
+	}
+
 	actionPause({
 		user_id,
 		user_type,
