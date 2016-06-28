@@ -12,18 +12,8 @@ class Agent {
 		this.iris.initContent();
 	}
 	launch() {
-		this.emitter.command('taskrunner.add.task', {
-			time: 15,
-			task_name: "",
-			solo: true,
-			module_name: "agent",
-			task_id: "cache-active-agents",
-			task_type: "add-task",
-			params: {
-				_action: "cache-active-agents"
-			}
-		});
-		return Promise.resolve(true);
+		return this.actionCacheActiveAgents()
+			.then(res => true);
 	}
 
 	//API
@@ -48,18 +38,10 @@ class Agent {
 				return this.iris.setEntryTypeless(agents);
 			})
 			.then((res) => {
-				this.emitter.command('taskrunner.add.task', {
-					time: 0,
-					task_name: "",
-					solo: true,
-					module_name: "agent",
-					task_id: "cache-active-agents",
-					task_type: "add-task",
-					params: {
-						_action: "cache-active-agents"
-					}
-				});
-				// console.log("USER", user_id, res);
+				return this.actionCacheActiveAgents();
+			})
+			.then((res) => {
+				// console.log("USER CHSTATE", user_id, res);
 				global.logger && logger.info("Agent %s changes state to %s", user_id, state);
 				return {
 					success: true
@@ -90,7 +72,7 @@ class Agent {
 					user_id,
 					state: 'active'
 				});
-			})
+			});
 
 	}
 
@@ -208,12 +190,23 @@ class Agent {
 	}
 
 	actionResume({
-		user_id
+		user_id,
+		user_type,
+		workstation
 	}) {
-		return this.actionChangeState({
-			user_id,
-			state: 'active'
-		});
+		return Promise.map(_.castArray(workstation), ws => {
+				this.emitter.addTask('workstation', {
+					_action: 'occupy',
+					workstation: ws,
+					user_type,
+					user_id
+				});
+			})
+			.then(res => {
+				return {
+					success: true
+				}
+			});
 	}
 
 	actionInfo({
@@ -269,6 +262,7 @@ class Agent {
 		user_type,
 		workstation = []
 	}) {
+		console.log("LEAVE", user_id, workstation);
 		let response;
 		return this.emitter.addTask('workstation', {
 				_action: 'workstation-organization-data',
