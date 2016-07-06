@@ -23,6 +23,7 @@ class Agent {
 
 	actionChangeState({
 		user_id,
+		workstation = [],
 		state
 	}) {
 		return this.iris.getEntryTypeless(user_id)
@@ -77,7 +78,8 @@ class Agent {
 	}
 
 	actionLogout({
-		user_id
+		user_id,
+		workstation
 	}) {
 		return this.actionChangeState({
 			user_id,
@@ -146,11 +148,21 @@ class Agent {
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
 				return this.actionChangeState({
 					user_id,
+					workstation,
 					state: 'paused'
 				});
 			})
 			.then((res) => {
 				response = res;
+				return Promise.map(_.castArray(workstation), (ws) => {
+					return this.emitter.addTask('workstation', {
+						_action: 'change-state',
+						workstation,
+						state: 'paused'
+					});
+				});
+			})
+			.then((res) => {
 				return Promise.map(_.castArray(workstation), (ws) => {
 					return this.emitter.addTask('queue', {
 						_action: "ticket-close-current",
@@ -176,7 +188,7 @@ class Agent {
 				return response;
 			})
 			.catch(err => {
-				console.log("PAUSE ERR", err.message);
+				console.log("PAUSE ERR", err.stack);
 				global.logger && logger.info(
 					err, {
 						module: 'agent',
