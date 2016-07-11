@@ -269,6 +269,24 @@ class Agent {
 			});
 	}
 
+	actionResourceKeys({
+		role,
+		organization
+	}) {
+		return this.iris.getAgentKeys(organization, role)
+			.then(keys => {
+				return Promise.props({
+					all: keys,
+					active: this.emitter.addTask('agent', {
+							_action: 'active-agents',
+							agent_type: 'Employee',
+							state: 'active'
+						})
+						.then(active_keys => _.intersection(keys, active_keys))
+				});
+			});
+	}
+
 	actionLeave({
 		user_id,
 		user_type,
