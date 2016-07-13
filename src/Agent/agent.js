@@ -137,6 +137,7 @@ class Agent {
 						query: {
 							state: ['called'],
 							operator: user_id,
+							destination: workstation,
 							org_destination: ws.org_merged.id,
 							dedicated_date: moment.tz(ws.org_merged.org_timezone)
 						}
@@ -312,6 +313,7 @@ class Agent {
 						_action: 'ticket',
 						query: {
 							state: ['called'],
+							destination: workstation,
 							operator: user_id,
 							org_destination: ws.org_merged.id,
 							dedicated_date: moment.tz(ws.org_merged.org_timezone)
