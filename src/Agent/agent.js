@@ -122,9 +122,8 @@ class Agent {
 			})
 			.then((workstations) => {
 				curr_ws = workstations;
-				return Promise.all(_.map(workstations, (ws) => {
+				return Promise.map(_.values(workstations), (ws) => {
 					if (user_type !== "SystemEntity") {
-
 						this.emitter.command('digital-display.emit.command', {
 							org_addr: ws.org_addr,
 							org_merged: ws.org_merged,
@@ -132,20 +131,18 @@ class Agent {
 							command: 'refresh'
 						});
 					}
-					return this.emitter.addTask('ticket', {
-						_action: 'ticket',
-						query: {
-							state: ['called'],
-							operator: user_id,
-							destination: workstation,
-							org_destination: ws.org_merged.id,
-							dedicated_date: moment.tz(ws.org_merged.org_timezone)
-						}
+
+					return this.actionCheckAssigned({
+						state: ['called', 'postponed'],
+						destination: workstation,
+						operator: user_id,
+						org_destination: ws.org_merged.id,
+						dedicated_date: moment.tz(ws.org_merged.org_timezone)
 					});
-				}));
+				});
 			})
 			.then((res) => {
-				if (!_.isEmpty(_.flatMap(res, _.values)))
+				if (!_.every(res, t => _.get(t, 'called.count', 0) == 0))
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
 				return this.actionChangeState({
 					user_id,
@@ -158,17 +155,8 @@ class Agent {
 				return Promise.map(_.castArray(workstation), (ws) => {
 					return this.emitter.addTask('workstation', {
 						_action: 'change-state',
-						workstation,
+						workstation: workstation,
 						state: 'paused'
-					});
-				});
-			})
-			.then((res) => {
-				return Promise.map(_.castArray(workstation), (ws) => {
-					return this.emitter.addTask('queue', {
-						_action: "ticket-close-current",
-						user_id,
-						workstation: ws
 					});
 				});
 			})
@@ -288,6 +276,38 @@ class Agent {
 			});
 	}
 
+	actionCheckAssigned({
+		operator,
+		destination,
+		org_destination,
+		dedicated_date,
+		state = ['called', 'postponed']
+	}) {
+		return this.emitter.addTask('ticket', {
+				_action: 'ticket',
+				query: {
+					state: state,
+					destination: destination,
+					operator: operator,
+					org_destination: org_destination,
+					dedicated_date: dedicated_date
+				}
+			})
+			.then((res) => {
+				let data = _(res)
+					.groupBy('state')
+					.mapValues(ticks => {
+						return {
+							tickets: ticks,
+							count: _.size(ticks)
+						};
+					})
+					.value();
+				console.log("PASSED", data);
+				return data;
+			});
+	}
+
 	actionLeave({
 		user_id,
 		user_type,
@@ -300,7 +320,7 @@ class Agent {
 				workstation
 			})
 			.then((workstations) => {
-				return Promise.all(_.map(workstations, (ws) => {
+				return Promise.map(_.values(workstations), (ws) => {
 					if (user_type !== "SystemEntity") {
 						this.emitter.command('digital-display.emit.command', {
 							org_addr: ws.org_addr,
@@ -309,41 +329,23 @@ class Agent {
 							command: 'clear'
 						});
 					}
-					return this.emitter.addTask('ticket', {
-						_action: 'ticket',
-						query: {
-							state: ['called'],
-							destination: workstation,
-							operator: user_id,
-							org_destination: ws.org_merged.id,
-							dedicated_date: moment.tz(ws.org_merged.org_timezone)
-						}
+					return this.actionCheckAssigned({
+						state: ['called', 'postponed'],
+						destination: workstation,
+						operator: user_id,
+						org_destination: ws.org_merged.id,
+						dedicated_date: moment.tz(ws.org_merged.org_timezone)
 					});
-				}));
+				});
 			})
 			.then((res) => {
-				if (!_.isEmpty(_.flatMap(res, _.values)))
+				if (!_.every(res, t => _.get(t, 'called.count', 0) == 0))
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
 				return this.emitter.addTask('workstation', {
 					_action: 'leave',
 					user_id,
 					workstation
 				});
-			})
-			.then((res) => {
-				response = res;
-				if (!res.success)
-					return Promise.reject(new Error(`User ${user_id} failed to leave workstations ${workstation}`));
-				return Promise.map(_.castArray(workstation), (ws) => {
-					return this.emitter.addTask('queue', {
-						_action: "ticket-close-current",
-						user_id,
-						workstation: ws
-					});
-				});
-			})
-			.then((res) => {
-				return response;
 			})
 			.catch(err => {
 				console.log("LEAVE ERR", err.message);
