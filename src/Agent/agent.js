@@ -169,9 +169,9 @@ class Agent {
 					org_merged
 				}) => {
 					this.emitter.command('queue.emit.head', {
-						user_id,
-						org_addr,
-						org_merged
+						operator: user_id,
+						workstation: ws.id,
+						organization: org_merged.id
 					});
 				});
 				return response;
