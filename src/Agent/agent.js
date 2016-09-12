@@ -196,7 +196,7 @@ class Agent {
 		workstation
 	}) {
 		return Promise.map(_.castArray(workstation), ws => {
-				this.emitter.addTask('workstation', {
+				return this.emitter.addTask('workstation', {
 					_action: 'occupy',
 					workstation: ws,
 					user_type,
