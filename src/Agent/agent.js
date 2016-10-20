@@ -308,27 +308,6 @@ class Agent {
 			});
 	}
 
-	actionUserLogout({
-		workstation
-	}) {
-		return this.emitter.addTask("workstation", {
-				_action: "by-id",
-				workstation: workstation
-			})
-			.then((res) => {
-				let ws = res[workstation];
-				let user = ws.occupied_by[0];
-				let organization = ws.attached_to;
-
-				return this.emitter.addTask('workstation', {
-					_action: "user-logout",
-					user_id: user,
-					workstation: workstation,
-					organization: organization
-				});
-			});
-	}
-
 	actionLeave({
 		user_id,
 		user_type,
