@@ -249,7 +249,6 @@ class Agent {
 	}) {
 		return this.iris.getActiveAgents()
 			.then((res) => {
-				// console.log("AGENTS", _.flattenDeep(_.values(_.pick(res[agent_type], _.castArray(state)))));
 				return _(res[agent_type])
 					.pick(state)
 					.values()
@@ -260,6 +259,7 @@ class Agent {
 
 	actionResourceKeys({
 		role,
+		state = 'active',
 		organization
 	}) {
 		return this.iris.getAgentKeys(organization, role)
@@ -269,10 +269,29 @@ class Agent {
 					active: this.emitter.addTask('agent', {
 							_action: 'active-agents',
 							agent_type: 'Employee',
-							state: 'active'
+							state: state
 						})
 						.then(active_keys => _.intersection(keys, active_keys))
 				});
+			});
+	}
+
+	actionProviders({
+		role,
+		state = 'active',
+		organization
+	}) {
+		return this.iris.getAgentKeys(organization, role)
+			.then(keys => {
+				return this.emitter.addTask('agent', {
+						_action: 'active-agents',
+						agent_type: 'Employee',
+						state: state
+					})
+					.then(all_active => _.intersection(keys, all_active));
+			})
+			.then(active_keys => {
+				return this.iris.getEntryTypeless(active_keys);
 			});
 	}
 
@@ -406,8 +425,7 @@ class Agent {
 	actionById({
 		agent_id
 	}) {
-		return this.iris.getEntryTypeless(agent_id)
-			.then((res) => _.isArray(agent_id) ? res : res[agent_id]);
+		return this.iris.getEntryTypeless(agent_id);
 	}
 }
 module.exports = Agent;
