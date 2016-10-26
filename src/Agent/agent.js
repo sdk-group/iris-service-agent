@@ -245,7 +245,7 @@ class Agent {
 
 	actionActiveAgents({
 		agent_type,
-		state = 'active'
+		state = ['active']
 	}) {
 		return this.iris.getActiveAgents()
 			.then((res) => {
@@ -259,14 +259,14 @@ class Agent {
 
 	actionResourceKeys({
 		role,
-		state = 'active',
+		state = ['active'],
 		organization
 	}) {
 		return this.iris.getAgentKeys(organization, role)
 			.then(keys => {
 				return Promise.props({
 					all: keys,
-					active: this.emitter.addTask('agent', {
+					active: state === '*' ? keys : this.emitter.addTask('agent', {
 							_action: 'active-agents',
 							agent_type: 'Employee',
 							state: state
@@ -278,12 +278,13 @@ class Agent {
 
 	actionProviders({
 		role,
-		state = 'active',
+		state = ['active'],
 		organization
 	}) {
 		return this.iris.getAgentKeys(organization, role)
 			.then(keys => {
-				return this.emitter.addTask('agent', {
+				return state === '*' ? keys :
+					this.emitter.addTask('agent', {
 						_action: 'active-agents',
 						agent_type: 'Employee',
 						state: state
