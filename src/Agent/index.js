@@ -8,6 +8,7 @@ let tasks = [];
 
 let manifest = {
 	module: require('./agent.js'),
+	name: 'agent',
 	permissions: [],
 	exposed: true,
 	tasks: tasks,
