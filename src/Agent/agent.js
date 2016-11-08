@@ -145,19 +145,18 @@ class Agent {
 				if (!_.every(res, t => _.get(t, 'called.count', 0) == 0))
 					return Promise.reject(new Error(`User cannot pause or logout with called tickets.`));
 				return this.actionChangeState({
-					user_id,
-					workstation,
+					user_id: user_id,
+					workstation: workstation,
 					state: 'paused'
 				});
 			})
 			.then((res) => {
 				response = res;
-				return Promise.map(_.castArray(workstation), (ws) => {
-					return this.emitter.addTask('workstation', {
-						_action: 'change-state',
-						workstation: workstation,
-						state: 'paused'
-					});
+				return this.emitter.addTask('workstation', {
+					_action: 'change-state',
+					workstation: _.castArray(workstation),
+					user_id: user_id,
+					state: 'paused'
 				});
 			})
 			.then((res) => {
