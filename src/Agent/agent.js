@@ -55,27 +55,10 @@ class Agent {
 		user_type,
 		workstation
 	}) {
-		return this.emitter.addTask('workstation', {
-				_action: 'workstation-organization-data',
-				workstation
-			})
-			.then((workstations) => {
-				let ws = workstations[workstation];
-				if (ws.ws.device_type == "control-panel") {
-					this.emitter.command('digital-display.emit.command', {
-						org_addr: ws.org_addr,
-						org_merged: ws.org_merged,
-						workstation: ws.ws.id,
-						command: 'refresh'
-					});
-				}
-
-				return this.actionChangeState({
-					user_id,
-					state: 'active'
-				});
-			});
-
+		return this.actionChangeState({
+			user_id,
+			state: 'active'
+		});
 	}
 
 	actionLogout({
@@ -125,14 +108,6 @@ class Agent {
 				curr_ws = workstations;
 				console.log(workstations);
 				return Promise.map(_.values(workstations), (ws) => {
-					if (ws.ws.device_type == "control-panel") {
-						this.emitter.command('digital-display.emit.command', {
-							org_addr: ws.org_addr,
-							org_merged: ws.org_merged,
-							workstation: ws.ws.id,
-							command: 'refresh'
-						});
-					}
 					return this.actionCheckAssigned({
 						state: ['called', 'postponed'],
 						destination: workstation,
@@ -323,7 +298,7 @@ class Agent {
 						};
 					})
 					.value();
-				console.log("PASSED", data);
+				console.log("PASSED", data.called);
 				return data;
 			});
 	}
@@ -341,15 +316,6 @@ class Agent {
 			})
 			.then((workstations) => {
 				return Promise.map(_.values(workstations), (ws) => {
-					if (ws.ws.device_type == "control-panel") {
-						this.emitter.command('digital-display.emit.command', {
-							org_addr: ws.org_addr,
-							org_merged: ws.org_merged,
-							workstation: ws.ws.id,
-							command: 'refresh'
-						});
-					}
-
 					return this.actionCheckAssigned({
 						state: ['called', 'postponed'],
 						destination: workstation,
