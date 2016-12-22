@@ -107,7 +107,7 @@ class Agent {
 			.then((workstations) => {
 				curr_ws = workstations;
 				console.log(workstations);
-				return Promise.map(_.values(workstations), (ws) => {
+				return Promise.mapSeries(_.values(workstations), (ws) => {
 					return this.actionCheckAssigned({
 						state: ['called', 'postponed'],
 						destination: workstation,
@@ -315,7 +315,7 @@ class Agent {
 				workstation
 			})
 			.then((workstations) => {
-				return Promise.map(_.values(workstations), (ws) => {
+				return Promise.mapSeries(_.values(workstations), (ws) => {
 					return this.actionCheckAssigned({
 						state: ['called', 'postponed'],
 						destination: workstation,
